@@ -16,7 +16,7 @@ def newEncoder(o):
     return o.__str__
 
 app = Flask(__name__)
-app.config["MONGO_URI"] = "mongodb://localhost:27017/adaptive"
+app.config["MONGO_URI"] = "mongodb://localhost:27017/studygenie"
 mongo = PyMongo(app)
 
 @app.route('/')
@@ -25,7 +25,7 @@ def hello_world():
 
 @app.route('/user', methods=['GET'])
 def get_users():
-    user_cursor = mongo.db.Users.find()
+    user_cursor = mongo.db.User.find()
     user_name = set()
     users = []
     for each in user_cursor:
@@ -57,9 +57,10 @@ def get_users():
             response.append(create_user_dto(each, log))
     return Response(dumps(response), status=200)
 
-@app.route('/user', methods= ['POST'])
+
+@app.route('/register', methods= ['POST'])
 def save_users():
-    Users = mongo.db.Users
+    Users = mongo.db.User
     username = request.json['user_name']
     password = request.json['password']
     hashed = encrypt(password)
@@ -76,14 +77,17 @@ def save_users():
 
 @app.route('/log', methods= ['POST'])
 def save_logs():
-    userLogs = mongo.db.UserLogs
-    userLogs.insert(create_event(request.form))
+    userLogs = mongo.db.UserLog
+    if request.form['type'] == 'interactions':
+        userLogs.insert(create_event(request.form))
+    else:
+        userLogs.insert(create_emotion(request.form))
     return Response(dumps({'status': 'Successfully saved'}), status=200)
 
 
 @app.route('/login', methods= ['POST'])
 def login():
-    Users = mongo.db.Users
+    Users = mongo.db.User
     Login = mongo.db.Login
     username = request.json['user_name']
     password = request.json['password']
@@ -97,7 +101,7 @@ def login():
             if check_password(password, hashed):
                 login_user = create_log_in(exist_user)
                 login_user['token'] = username + "-token"
-                # login_user = Login.insert(login_user)
+                Login.insert(login_user)
                 return Response(dumps({'status': True, 'data': login_user}), status=200)
             else:
                 return Response(dumps({'status': False}), status=401)
@@ -110,8 +114,8 @@ def logout():
     Login = mongo.db.Login
     username = request.json['user_name']
     logged_in = Login.find_one({'user_name': username, "online": True})
-    if logged_in == None:
-        return dumps("User is not logged in")
+    if not logged_in:
+        return Response(dumps({'status': '"User is not logged in"'}), status=403)
     else:
         logged_in['online'] = False
         logged_in['logged_out_time'] = datetime.datetime.now()
@@ -121,8 +125,8 @@ def logout():
 
 @app.route('/analytics/user-events', methods= ['GET'])
 def getUserEvents():
-    userLogs = mongo.db.UserLogs
-    userLog_data = userLogs.find()
+    userLogs = mongo.db.UserLog
+    userLog_data = userLogs.find({'type': 'interactions'})
     event = ['click', 'focus', 'blur', 'keyup', 'keydown', 'keypressed', 'mousemove', 'resize', 'scroll']
     response = {}
     for user in userLog_data:
@@ -142,27 +146,62 @@ def getUserEvents():
     return Response(json.dumps(response.values()), status=200)
 
 
-@app.route('/analytics/user-targets', methods= ['GET'])
-def getUserTargets():
-    userLogs = mongo.db.UserLogs
-    userLog_data = userLogs.find()
+@app.route('/analytics/user-emotions', methods= ['GET'])
+def getEmotions():
+    userLogs = mongo.db.UserLog
+    userLog_data = userLogs.find({'type': 'emotions'})
     response = {}
     for user in userLog_data:
         if user['user_name'] not in response.keys():
             response[user['user_name']] = {}
             response[user['user_name']]['user_name'] = user['user_name']
+            response[user['user_name']]['actions'] = ['smile', 'cheekRaise', 'browRaise', 'smirk', 'attention', 'eyeClosure', 'chinRaise', 'eyeWiden'];
+            response[user['user_name']]['count'] = [ 0, 0, 0, 0, 0, 0, 0, 0]
+
+        if float(user['smile']) > 90:
+            response[user['user_name']]['count'][0] =  response[user['user_name']]['count'][0] + 1
+        if float(user['cheekRaise']) > 90:
+            response[user['user_name']]['count'][1] = response[user['user_name']]['count'][1] + 1
+        if float(user['browRaise']) > 90:
+            response[user['user_name']]['count'][2] = response[user['user_name']]['count'][2] + 1
+        if float(user['smirk']) > 90:
+            response[user['user_name']]['count'][3] = response[user['user_name']]['count'][3] + 1
+        if float(user['attention']) > 90:
+            response[user['user_name']]['count'][4] = response[user['user_name']]['count'][4] + 1
+        if float(user['eyeClosure']) > 50:
+            response[user['user_name']]['count'][5] = response[user['user_name']]['count'][5] + 1
+        if float(user['chinRaise']) > 0.5:
+            response[user['user_name']]['count'][6] = response[user['user_name']]['count'][6] + 1
+        if float(user['eyeWiden']) > 90:
+            response[user['user_name']]['count'][7] = response[user['user_name']]['count'][7] + 1
+    return Response(json.dumps(response.values()), status=200)
+
+
+
+
+@app.route('/analytics/user-targets', methods= ['GET'])
+def getUserTargets():
+    userLogs = mongo.db.UserLog
+    userLog_data = userLogs.find({'type': 'interactions'})
+    response = {}
+    for user in userLog_data:
+        if user['user_name'] not in response.keys():
+            response[user['user_name']] = {}
+            response[user['user_name']]['user_name'] = user['user_name']
+            response[user['user_name']]['arr'] = []
             response[user['user_name']]['target'] = []
-            response[user['user_name']]['count'] = []
+
         idx = -1
         try:
-            idx = response[user['user_name']]['target'].index(user['target'])
+            idx = response[user['user_name']]['arr'].index(user['target'])
         except ValueError:
             ""
         if idx >= 0:
-            response[user['user_name']]['count'][idx] = response[user['user_name']]['count'][idx] + 1
+            response[user['user_name']]['target'][idx]['value'] = response[user['user_name']]['target'][idx]['value'] + 1
         else:
-            response[user['user_name']]['target'].append(user['target'])
-            response[user['user_name']]['count'].append(1)
+            data = {"name" : user['target'], 'value': 1}
+            response[user['user_name']]['target'].append(data)
+            response[user['user_name']]['arr'].append(user['target'])
 
     return Response(json.dumps(response.values()), status=200)
 
@@ -194,12 +233,13 @@ def create_user_dto(each, loggedin):
     user['last_name'] = each['last_name']
     user['email'] = each['email']
     if loggedin:
-        user['logged_in_time'] = loggedin['logged_in_time']
+        user['logged_in_time'] = str(loggedin['logged_in_time'])
         user['online'] = loggedin['online']
     else:
         user['logged_in_time'] = ''
         user['online'] = False
     return user
+
 
 def create_event(form):
     event = {}
@@ -213,6 +253,24 @@ def create_event(form):
     event['user_name'] = form['user_name']
     event['date'] = form['date']
     return event
+
+
+def create_emotion(form):
+    emotion= {}
+    emotion['smile'] = form['smile']
+    emotion['innerBrowRaise'] = form['innerBrowRaise']
+    emotion['browRaise'] = form['browRaise']
+    emotion['upperLipRaise'] = form['upperLipRaise']
+    emotion['chinRaise'] = form['chinRaise']
+    emotion['mouthOpen'] = form['mouthOpen']
+    emotion['smirk'] = form['smirk']
+    emotion['eyeClosure'] = form['eyeClosure']
+    emotion['attention'] = form['attention']
+    emotion['eyeWiden'] = form['eyeWiden']
+    emotion['cheekRaise'] = form['cheekRaise']
+    emotion['user_name'] = form['user_name']
+    emotion['type'] = form['type']
+    return emotion
 
 if __name__ == '__main__':
     app.run()
