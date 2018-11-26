@@ -7,6 +7,7 @@ from bson import json_util, ObjectId
 import json
 import datetime
 import bcrypt
+import course_controller
 from bson.objectid import ObjectId
 
 
@@ -22,6 +23,7 @@ mongo = PyMongo(app)
 @app.route('/')
 def hello_world():
     return 'Hello World!'
+
 
 @app.route('/user', methods=['GET'])
 def get_users():
@@ -121,6 +123,11 @@ def logout():
         logged_in['logged_out_time'] = datetime.datetime.now()
         Login.update_one({'_id': logged_in['_id']}, {"$set": logged_in}, upsert=False)
     return Response(dumps({'status': 'Successfully logged out'}), status=200)
+
+
+@app.route('/create/subtopics', methods= ['POST'])
+def create_sub_topics():
+    return course_controller.create_sub_topics()
 
 
 @app.route('/analytics/user-events', methods= ['GET'])
