@@ -25,3 +25,14 @@ def create_sub_topics():
         topic['course'] = course
         topic = SubTopics.insert(topic)
     return Response(dumps({'status': True, 'data': subtopics}), status=200)
+
+
+def get_course():
+    courses = mongo.db.Courses.find()
+    return Response(dumps(courses), status=200)
+
+
+def get_sub_topic(request):
+    query = request.query_string.split("=")
+    subtopics = mongo.db.SubTopics.find({ 'code': query[1]})
+    return Response(dumps(subtopics), status=200)

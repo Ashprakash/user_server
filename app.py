@@ -130,6 +130,16 @@ def create_sub_topics():
     return course_controller.create_sub_topics()
 
 
+@app.route('/courses', methods= ['GET'])
+def get_courses():
+    return course_controller.get_course()
+
+
+@app.route('/subtopics', methods= ['GET'])
+def get_sub_topics():
+    return course_controller.get_sub_topic(request)
+
+
 @app.route('/analytics/user-events', methods= ['GET'])
 def getUserEvents():
     userLogs = mongo.db.UserLog
