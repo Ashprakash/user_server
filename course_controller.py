@@ -16,14 +16,14 @@ mongo = PyMongo(app)
 
 
 def create_sub_topics():
-    Courses = mongo.db.Courses
-    SubTopics = mongo.db.SubTopics
+    Course = mongo.db.Course
+    SubTopic = mongo.db.SubTopic
     subtopics = request.json
 
     for topic in subtopics:
-        course = Courses.find_one({'code': topic['code']})
+        course = Course.find_one({'code': topic['code']})
         topic['course'] = course
-        topic = SubTopics.insert(topic)
+        topic = SubTopic.insert(topic)
     return Response(dumps({'status': True, 'data': subtopics}), status=200)
 
 
@@ -34,6 +34,6 @@ def get_course():
 
 def get_sub_topic(request):
     query = request.query_string.split("=")
-    subtopics = mongo.db.SubTopics.find({ 'code': query[1]})
+    subtopics = mongo.db.SubTopic.find({ 'code': query[1]})
     return Response(dumps(subtopics), status=200)
 

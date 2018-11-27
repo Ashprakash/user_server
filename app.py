@@ -135,14 +135,17 @@ def create_sub_topics():
 def get_courses():
     return course_controller.get_course()
 
-@app.route('/create/newpost', methods= ['POST'])
+
+@app.route('/create/post', methods= ['POST'])
 def create_new_post():
-    posts = post_controller.add_post()
+    user_obj = find_user(request.headers)
+    if user_obj == 403:
+        return Response(dumps({'status': 'Error unauthorized access'}), status=403)
+    posts = post_controller.add_post(request, user_obj)
     return posts
 
 
-
-@app.route('/subtopics', methods= ['GET'])
+@app.route('/sub/topics', methods= ['GET'])
 def get_sub_topics():
     return course_controller.get_sub_topic(request)
 
@@ -249,6 +252,16 @@ def check_password(password, hashed):
         return True
     else:
         return False
+
+
+def find_user(header):
+    Login = mongo.db.Login
+    token =  header['Authorization']
+    loggedInUser = Login.find_one({"online": True, "token": token})
+    if loggedInUser is None:
+        return 403
+    return loggedInUser
+
 
 def create_user_dto(each, loggedin):
     user= {}
