@@ -8,6 +8,7 @@ import json
 import datetime
 import bcrypt
 import course_controller
+import post_controller
 from bson.objectid import ObjectId
 
 
@@ -133,6 +134,12 @@ def create_sub_topics():
 @app.route('/courses', methods= ['GET'])
 def get_courses():
     return course_controller.get_course()
+
+@app.route('/create/newpost', methods= ['POST'])
+def create_new_post():
+    posts = post_controller.add_post()
+    return posts
+
 
 
 @app.route('/subtopics', methods= ['GET'])
