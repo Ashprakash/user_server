@@ -36,3 +36,4 @@ def get_sub_topic(request):
     query = request.query_string.split("=")
     subtopics = mongo.db.SubTopics.find({ 'code': query[1]})
     return Response(dumps(subtopics), status=200)
+
