@@ -9,8 +9,8 @@ import datetime
 import bcrypt
 import course_controller
 import post_controller
+import study_global
 from bson.objectid import ObjectId
-
 
 def newEncoder(o):
     if type(o) == ObjectId:
@@ -18,7 +18,7 @@ def newEncoder(o):
     return o.__str__
 
 app = Flask(__name__)
-app.config["MONGO_URI"] = "mongodb://localhost:27017/studygenie"
+app.config["MONGO_URI"] = study_global.URI
 mongo = PyMongo(app)
 
 @app.route('/')

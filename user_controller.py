@@ -8,10 +8,11 @@ import json
 import datetime
 import bcrypt
 from bson.objectid import ObjectId
+import study_global
 
 
 app = Flask(__name__)
-app.config["MONGO_URI"] = "mongodb://localhost:27017/studygenie"
+app.config["MONGO_URI"] = study_global.URI
 mongo = PyMongo(app)
 
 

@@ -1,0 +1,1 @@
+URI = "mongodb://54.153.78.186/StudyGenie"

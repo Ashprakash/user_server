@@ -3,6 +3,7 @@ from flask import Response
 from flask import jsonify
 from flask_pymongo import PyMongo
 from bson.json_util import dumps
+import study_global
 from bson import json_util, ObjectId
 import json
 import datetime
@@ -11,7 +12,7 @@ from bson.objectid import ObjectId
 
 
 app = Flask(__name__)
-app.config["MONGO_URI"] = "mongodb://localhost:27017/studygenie"
+app.config["MONGO_URI"] = study_global.URI
 mongo = PyMongo(app)
 
 
