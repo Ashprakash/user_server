@@ -112,8 +112,9 @@ def get_posts(request, user):
         response['id'] = str(ObjectId(post['_id']))
         response['upvotes'] = post['up_votes']
         response['downvotes'] = post['down_votes']
-        response['pinned'] = post['pinned']
-        response['pinned_users'] = post['pinned_users']
+        if 'pinned' in post:
+            response['pinned'] = post['pinned']
+            response['pinned_users'] = post['pinned_users']
         response['tags'] = post['tags']
         response['title'] = post['title']
         response['content'] = post['content']
