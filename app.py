@@ -13,6 +13,7 @@ import graph_controller
 import study_global
 import sticky_note_controller
 from bson.objectid import ObjectId
+from flask_cors import CORS
 
 def newEncoder(o):
     if type(o) == ObjectId:
@@ -20,6 +21,8 @@ def newEncoder(o):
     return o.__str__
 
 app = Flask(__name__)
+CORS(app)
+
 app.config["MONGO_URI"] = study_global.URI
 mongo = PyMongo(app)
 
@@ -134,6 +137,32 @@ def logout():
 @app.route('/create/subtopics', methods= ['POST'])
 def create_sub_topics():
     return course_controller.create_sub_topics()
+
+
+@app.route('/upvote', methods=['POST'])
+def upvote_post():
+    user_obj = find_user(request.headers)
+    if user_obj == 403:
+        return Response(dumps({'status': 'Error unauthorized access'}), status=403)
+    posts = post_controller.upvote_post(request, user_obj)
+    return "Successfully updated"
+
+
+@app.route('/downvote', methods=['POST'])
+def downvote_post():
+    user_obj = find_user(request.headers)
+    if user_obj == 403:
+        return Response(dumps({'status': 'Error unauthorized access'}), status=403)
+    posts = post_controller.downvote_post(request, user_obj)
+    return "Successfully updated"
+
+
+@app.route('/get-posts', methods=['GET'])
+def get_posts():
+    user_obj = find_user(request.headers)
+    if user_obj == 403:
+        return Response(dumps({'status': 'Error unauthorized access'}), status=403)
+    return course_controller.get_sub_topic(request)
 
 
 @app.route('/create/sticky/note', methods= ['POST'])

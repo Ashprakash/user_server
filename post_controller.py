@@ -39,6 +39,42 @@ def create_post_obj(request, user):
     obj['downvote_users'] = []
     return obj
 
+def upvote_post(request, user):
+    note = find_post(request.json['_id'])
+    note['up_votes'] = note['up_votes'] + 1
+    if (len(note['upvote_users']) == 0):
+        userList = []
+        userList.append(user['user_name'])
+        note['upvote_users'] = userList
+    else:
+        note['upvote_users'] = note['upvote_users'].append(user['user_name'])
+    if (set(note['downvote_users']).__contains__(user['user_name'])):
+        note['down_votes'] = note['down_votes'] - 1
+        down_vote_users = set(note['downvote_users'])
+        note['downvote_users'] = down_vote_users.remove(user['user_name'])
+    Post = mongo.db.Post
+    Post.update_one({'_id': note['_id']}, {"$set": note}, upsert=False)
+    return note
+
+def downvote_post(request, user):
+    note = find_post(request.json['_id'])
+    note['down_votes'] = note['down_votes'] + 1
+    if (len(note['downvote_users']) == 0):
+        userList = []
+        userList.append(user['user_name'])
+        note['downvote_users'] = userList
+    else:
+        note['downvote_users'] = note['downvote_users'].append(user['user_name'])
+    if(note['upvote_users']  != None):
+        if (set(note['upvote_users']).__contains__(user['user_name'])):
+            note['up_votes'] = note['up_votes'] - 1
+            up_vote_users = set(note['upvote_users'])
+            note['upvote_users'] = up_vote_users.remove(user['user_name'])
+    Post = mongo.db.Post
+    Post.update_one({'_id': note['_id']}, {"$set": note}, upsert=False)
+    return note
+
+
 # def update_up_vote():
 #     note = find_post(request.json['_id'])
 #     up_vote_user = Set(note['up_vote_users'])
@@ -46,5 +82,5 @@ def create_post_obj(request, user):
 
 def find_post(id):
     Post = mongo.db.Post
-    note = Post.find_one({'_id': id})
+    note = Post.find_one({"_id": ObjectId(id)})
     return note
