@@ -13,6 +13,7 @@ import graph_controller
 import study_global
 import sticky_note_controller
 from bson.objectid import ObjectId
+from flask_cors import CORS
 
 def newEncoder(o):
     if type(o) == ObjectId:
@@ -20,6 +21,8 @@ def newEncoder(o):
     return o.__str__
 
 app = Flask(__name__)
+CORS(app)
+
 app.config["MONGO_URI"] = study_global.URI
 mongo = PyMongo(app)
 
