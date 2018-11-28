@@ -130,6 +130,7 @@ def logout():
         Login.update_one({'_id': logged_in['_id']}, {"$set": logged_in}, upsert=False)
     return Response(dumps({'status': 'Successfully logged out'}), status=200)
 
+
 @app.route('/create/subtopics', methods= ['POST'])
 def create_sub_topics():
     return course_controller.create_sub_topics()
@@ -141,6 +142,14 @@ def create_sticky_note():
     if user_obj == 403:
         return Response(dumps({'status': 'Error unauthorized access'}), status=403)
     return sticky_note_controller.create_sticky_note(request, user_obj)
+
+
+@app.route('/invalidate/sticky/note', methods= ['POST'])
+def invalidate_sticky_note():
+    user_obj = find_user(request.headers)
+    if user_obj == 403:
+        return Response(dumps({'status': 'Error unauthorized access'}), status=403)
+    return sticky_note_controller.invalidate_sticky_note(request, user_obj)
 
 
 @app.route('/courses', methods= ['GET'])
