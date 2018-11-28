@@ -128,6 +128,8 @@ def get_posts(request, user):
         response['subtopic']['course']['name'] = post['subtopic']['course']['name']
         response['subtopic']['course']['Description'] = post['subtopic']['course']['Description']
         response['subtopic']['course']['code'] = post['subtopic']['course']['code']
+        response['created_time'] = str(post['created_time'])
+        response['created_user'] = post['created_user']['user_name']
         response['user_upvoted'] = 0
         response['user_downvoted'] = 0
         upvoted_users = post['upvote_users']
