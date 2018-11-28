@@ -34,6 +34,8 @@ def create_post_obj(request, user):
     obj['subtopic'] = subtopic
     obj['up_votes'] = 0
     obj['down_votes'] = 0
+    obj['pings'] = 0
+    obj['pinged_users'] = []
     obj['created_user'] = user
     obj['upvote_users'] = []
     obj['downvote_users'] = []
