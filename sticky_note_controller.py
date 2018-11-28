@@ -1,5 +1,6 @@
 from flask import Flask, request
 from flask import Response
+from bson.objectid import ObjectId
 from flask import jsonify
 from flask_pymongo import PyMongo
 from bson.json_util import dumps
@@ -31,9 +32,9 @@ def get_sticky_note(user):
     stickyNote = mongo.db.StickyNote.find({'user_name' : user['user_name'], 'valid': True})
     return Response(dumps(stickyNote), status=200)
 
-def invalidate_sticky_note(user, request):
-    username = user['user_name']
-    stickyNote = mongo.db.StickyNote.find_one({'user_name': username, "valid": True})
+
+def invalidate_sticky_note(request, user):
+    stickyNote = mongo.db.StickyNote.find_one({'_id': ObjectId(request.json['id']), "valid": True})
     if not stickyNote:
         return Response(dumps({'status': 'Note is already removed'}), status=200)
     else:
