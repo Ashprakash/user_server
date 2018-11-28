@@ -156,6 +156,22 @@ def downvote_post():
     posts = post_controller.downvote_post(request, user_obj)
     return "Successfully updated"
 
+@app.route('/ping-post', methods=['POST'])
+def ping_post():
+    user_obj = find_user(request.headers)
+    if user_obj == 403:
+        return Response(dumps({'status': 'Error unauthorized access'}), status=403)
+    posts = post_controller.ping_post(request, user_obj)
+    return "Successfully updated"
+
+@app.route('/unping-post', methods=['POST'])
+def unping_post():
+    user_obj = find_user(request.headers)
+    if user_obj == 403:
+        return Response(dumps({'status': 'Error unauthorized access'}), status=403)
+    posts = post_controller.unping_post(request, user_obj)
+    return "Successfully updated"
+
 
 @app.route('/get-posts', methods=['GET'])
 def get_posts():
