@@ -78,6 +78,7 @@ def get_posts(request, user):
     Post = mongo.db.Post
     notes = Post.find()
     response = {}
+    response_final = []
     for post in notes:
         response['upvotes'] = post['up_votes']
         response['downvotes'] = post['down_votes']
@@ -97,17 +98,18 @@ def get_posts(request, user):
         response['user_upvoted'] = 0
         response['user_downvoted'] = 0
         upvoted_users = post['upvote_users']
-        for userUpvoted in upvoted_users:
-            if(userUpvoted == user):
-                response['user_upvoted'] = 1
-                return response
+        if(upvoted_users != None):
+            for userUpvoted in upvoted_users:
+                if(userUpvoted == user):
+                    response['user_upvoted'] = 1
 
         downvote_users = post['downvote_users']
-        for userDownvoted in downvote_users:
-            if (userDownvoted == user):
-                response['user_downvoted'] = 1
-                return response
-        return response
+        if(downvote_users != None):
+            for userDownvoted in downvote_users:
+                if (userDownvoted == user):
+                    response['user_downvoted'] = 1
+        response_final.append(response)
+    return response_final
 
 def find_post(id):
     Post = mongo.db.Post
