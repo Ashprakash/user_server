@@ -39,6 +39,7 @@ def create_post_obj(request, user):
     obj['downvote_users'] = []
     return obj
 
+
 def upvote_post(request, user):
     note = find_post(request.json['_id'])
     note['up_votes'] = note['up_votes'] + 1
@@ -55,6 +56,7 @@ def upvote_post(request, user):
     Post = mongo.db.Post
     Post.update_one({'_id': note['_id']}, {"$set": note}, upsert=False)
     return note
+
 
 def downvote_post(request, user):
     note = find_post(request.json['_id'])
@@ -73,6 +75,7 @@ def downvote_post(request, user):
     Post = mongo.db.Post
     Post.update_one({'_id': note['_id']}, {"$set": note}, upsert=False)
     return note
+
 
 def get_posts(request, user):
     Post = mongo.db.Post
@@ -110,6 +113,7 @@ def get_posts(request, user):
                     response['user_downvoted'] = 1
         response_final.append(response)
     return response_final
+
 
 def find_post(id):
     Post = mongo.db.Post
