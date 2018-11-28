@@ -10,6 +10,7 @@ import bcrypt
 import course_controller
 import post_controller
 import study_global
+import sticky_note_controller
 from bson.objectid import ObjectId
 
 def newEncoder(o):
@@ -131,9 +132,25 @@ def create_sub_topics():
     return course_controller.create_sub_topics()
 
 
+@app.route('/create/sticky/note', methods= ['POST'])
+def create_sticky_note():
+    user_obj = find_user(request.headers)
+    if user_obj == 403:
+        return Response(dumps({'status': 'Error unauthorized access'}), status=403)
+    return sticky_note_controller.create_sticky_note(request, user_obj)
+
+
 @app.route('/courses', methods= ['GET'])
 def get_courses():
     return course_controller.get_course()
+
+
+@app.route('/sticky/notes', methods= ['GET'])
+def get_sticky_notes():
+    user_obj = find_user(request.headers)
+    if user_obj == 403:
+        return Response(dumps({'status': 'Error unauthorized access'}), status=403)
+    return sticky_note_controller.get_sticky_note(user_obj)
 
 
 @app.route('/create/post', methods= ['POST'])
@@ -204,9 +221,7 @@ def getEmotions():
     return Response(json.dumps(response.values()), status=200)
 
 
-
-
-@app.route('/analytics/user-targets', methods= ['GET'])
+@app.route('/analytics/user-targets', methods=['GET'])
 def getUserTargets():
     userLogs = mongo.db.UserLog
     userLog_data = userLogs.find({'type': 'interactions'})

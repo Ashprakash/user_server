@@ -29,8 +29,8 @@ def create_sub_topics():
 
 
 def get_course():
-    courses = mongo.db.Courses.find()
-    return Response(dumps(courses), status=200)
+    course = mongo.db.Course.find()
+    return Response(dumps(course), status=200)
 
 
 def get_sub_topic(request):

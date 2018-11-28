@@ -17,6 +17,6 @@ mongo = PyMongo(app)
 
 
 def create_group():
-    Groups = mongo.db.Groups
-    Users = mongo.db.Users
+    Groups = mongo.db.Group
+    Users = mongo.db.User
     return Response(dumps({'status': True}), status=200)
