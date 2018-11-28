@@ -37,6 +37,7 @@ def create_post_obj(request, user):
     obj['created_user'] = user
     obj['upvote_users'] = []
     obj['downvote_users'] = []
+    obj['created_time'] = datetime.datetime.now()
     return obj
 
 def upvote_post(request, user):
@@ -106,6 +107,7 @@ def get_posts(request, user):
     response_final = []
     for post in notes:
         response = {}
+        response['id'] = str(ObjectId(post['_id']))
         response['upvotes'] = post['up_votes']
         response['downvotes'] = post['down_votes']
         response['tags'] = post['tags']
