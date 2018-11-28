@@ -39,7 +39,6 @@ def create_post_obj(request, user):
     obj['downvote_users'] = []
     return obj
 
-
 def upvote_post(request, user):
     note = find_post(request.json['_id'])
     note['up_votes'] = note['up_votes'] + 1
@@ -56,7 +55,6 @@ def upvote_post(request, user):
     Post = mongo.db.Post
     Post.update_one({'_id': note['_id']}, {"$set": note}, upsert=False)
     return note
-
 
 def downvote_post(request, user):
     note = find_post(request.json['_id'])
@@ -76,13 +74,38 @@ def downvote_post(request, user):
     Post.update_one({'_id': note['_id']}, {"$set": note}, upsert=False)
     return note
 
+def ping_post(request, user):
+    note = find_post(request.json['_id'])
+    note['pings'] = note['pings'] + 1
+    if (len(note['pinged_users']) == 0):
+        userList = []
+        userList.append(user['user_name'])
+        note['pinged_users'] = userList
+    else:
+        note['pinged_users'] = note['pinged_users'].append(user['user_name'])
+    Post = mongo.db.Post
+    Post.update_one({'_id': note['_id']}, {"$set": note}, upsert=False)
+    return note
+
+def unping_post(request, user):
+    note = find_post(request.json['_id'])
+    note['pings'] = note['pings'] - 1
+    if (len(note['pinged_users']) == 0):
+        return note
+    else:
+        users = set(note['pinged_users'])
+        note['pinged_users'] = users.remove(user['user_name'])
+    Post = mongo.db.Post
+    Post.update_one({'_id': note['_id']}, {"$set": note}, upsert=False)
+    return note
+
 
 def get_posts(request, user):
     Post = mongo.db.Post
     notes = Post.find()
-    response = {}
     response_final = []
     for post in notes:
+        response = {}
         response['upvotes'] = post['up_votes']
         response['downvotes'] = post['down_votes']
         response['tags'] = post['tags']
@@ -113,7 +136,6 @@ def get_posts(request, user):
                     response['user_downvoted'] = 1
         response_final.append(response)
     return response_final
-
 
 def find_post(id):
     Post = mongo.db.Post
