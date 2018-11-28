@@ -161,7 +161,8 @@ def get_posts():
     user_obj = find_user(request.headers)
     if user_obj == 403:
         return Response(dumps({'status': 'Error unauthorized access'}), status=403)
-    return course_controller.get_sub_topic(request)
+    posts = post_controller.get_posts(request, user_obj)
+    return Response(json.dumps(posts), status=200)
 
 
 @app.route('/create/sticky/note', methods= ['POST'])

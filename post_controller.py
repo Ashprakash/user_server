@@ -74,11 +74,40 @@ def downvote_post(request, user):
     Post.update_one({'_id': note['_id']}, {"$set": note}, upsert=False)
     return note
 
+def get_posts(request, user):
+    Post = mongo.db.Post
+    notes = Post.find()
+    response = {}
+    for post in notes:
+        response['upvotes'] = post['up_votes']
+        response['downvotes'] = post['down_votes']
+        response['tags'] = post['tags']
+        response['title'] = post['title']
+        response['content'] = post['content']
+        response['title'] = post['title']
+        response['code'] = post['code']
+        response['subtopic'] = {}
+        response['subtopic']['code'] = post['subtopic']['code']
+        response['subtopic']['name'] = post['subtopic']['name']
+        response['subtopic']['description'] = post['subtopic']['Description']
+        response['subtopic']['course'] = {}
+        response['subtopic']['course']['name'] = post['subtopic']['course']['name']
+        response['subtopic']['course']['Description'] = post['subtopic']['course']['Description']
+        response['subtopic']['course']['code'] = post['subtopic']['course']['code']
+        response['user_upvoted'] = 0
+        response['user_downvoted'] = 0
+        upvoted_users = post['upvote_users']
+        for userUpvoted in upvoted_users:
+            if(userUpvoted == user):
+                response['user_upvoted'] = 1
+                return response
 
-# def update_up_vote():
-#     note = find_post(request.json['_id'])
-#     up_vote_user = Set(note['up_vote_users'])
-#     down_vote_user = Set(note['down_vote_users'])
+        downvote_users = post['downvote_users']
+        for userDownvoted in downvote_users:
+            if (userDownvoted == user):
+                response['user_downvoted'] = 1
+                return response
+        return response
 
 def find_post(id):
     Post = mongo.db.Post
