@@ -9,6 +9,7 @@ import datetime
 import bcrypt
 import course_controller
 import post_controller
+import graph_controller
 import study_global
 import sticky_note_controller
 from bson.objectid import ObjectId
@@ -26,6 +27,9 @@ mongo = PyMongo(app)
 def hello_world():
     return 'Hello World!'
 
+@app.route('/circlegraph', methods=['GET'])
+def get_circlegraph():
+    return graph_controller.get_circlegraph()
 
 @app.route('/user', methods=['GET'])
 def get_users():
@@ -125,7 +129,6 @@ def logout():
         logged_in['logged_out_time'] = datetime.datetime.now()
         Login.update_one({'_id': logged_in['_id']}, {"$set": logged_in}, upsert=False)
     return Response(dumps({'status': 'Successfully logged out'}), status=200)
-
 
 @app.route('/create/subtopics', methods= ['POST'])
 def create_sub_topics():
