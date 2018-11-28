@@ -34,8 +34,8 @@ def create_post_obj(request, user):
     obj['subtopic'] = subtopic
     obj['up_votes'] = 0
     obj['down_votes'] = 0
-    obj['pings'] = 0
-    obj['pinged_users'] = []
+    obj['pinned'] = 0
+    obj['pinned_users'] = []
     obj['created_user'] = user
     obj['upvote_users'] = []
     obj['downvote_users'] = []
@@ -77,27 +77,27 @@ def downvote_post(request, user):
     Post.update_one({'_id': note['_id']}, {"$set": note}, upsert=False)
     return note
 
-def ping_post(request, user):
+def pin_post(request, user):
     note = find_post(request.json['_id'])
-    note['pings'] = note['pings'] + 1
-    if (len(note['pinged_users']) == 0):
+    note['pinned'] = note['pinned'] + 1
+    if (len(note['pinned_users']) == 0):
         userList = []
         userList.append(user['user_name'])
-        note['pinged_users'] = userList
+        note['pinned_users'] = userList
     else:
-        note['pinged_users'] = note['pinged_users'].append(user['user_name'])
+        note['pinned_users'] = note['pinned_users'].append(user['user_name'])
     Post = mongo.db.Post
     Post.update_one({'_id': note['_id']}, {"$set": note}, upsert=False)
     return note
 
-def unping_post(request, user):
+def unpin_post(request, user):
     note = find_post(request.json['_id'])
-    note['pings'] = note['pings'] - 1
-    if (len(note['pinged_users']) == 0):
+    note['pinned'] = note['pinned'] - 1
+    if (len(note['pinned_users']) == 0):
         return note
     else:
-        users = set(note['pinged_users'])
-        note['pinged_users'] = users.remove(user['user_name'])
+        users = set(note['pinned_users'])
+        note['pinned_users'] = users.remove(user['user_name'])
     Post = mongo.db.Post
     Post.update_one({'_id': note['_id']}, {"$set": note}, upsert=False)
     return note
@@ -112,6 +112,8 @@ def get_posts(request, user):
         response['id'] = str(ObjectId(post['_id']))
         response['upvotes'] = post['up_votes']
         response['downvotes'] = post['down_votes']
+        response['pinned'] = post['pinned']
+        response['pinned_users'] = post['pinned_users']
         response['tags'] = post['tags']
         response['title'] = post['title']
         response['content'] = post['content']
