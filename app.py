@@ -183,7 +183,7 @@ def get_posts():
     return Response(json.dumps(posts), status=200)
 
 @app.route('/groups/get-posts', methods=['GET'])
-def get_posts():
+def get_posts_group():
     user_obj = find_user(request.headers)
     if user_obj == 403:
         return Response(dumps({'status': 'Error unauthorized access'}), status=403)
@@ -229,7 +229,7 @@ def create_new_post():
     return posts
 
 @app.route('/create/group/post', methods= ['POST'])
-def create_new_post():
+def create_new_post_group():
     user_obj = find_user(request.headers)
     if user_obj == 403:
         return Response(dumps({'status': 'Error unauthorized access'}), status=403)
