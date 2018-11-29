@@ -177,16 +177,7 @@ def unpin_post():
     posts = post_controller.unpin_post(request, user_obj)
     return "Successfully updated"
 
-
 @app.route('/get-posts', methods=['GET'])
-def get_posts():
-    user_obj = find_user(request.headers)
-    if user_obj == 403:
-        return Response(dumps({'status': 'Error unauthorized access'}), status=403)
-    posts = post_controller.get_posts(request, user_obj)
-    return Response(json.dumps(posts), status=200)
-
-@app.route('/groups/get-posts', methods=['GET'])
 def get_posts_group():
     user_obj = find_user(request.headers)
     if user_obj == 403:
