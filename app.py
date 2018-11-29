@@ -192,7 +192,7 @@ def get_posts_group():
     if user_obj == 403:
         return Response(dumps({'status': 'Error unauthorized access'}), status=403)
     posts = post_controller.get_posts(request, user_obj)
-    return Response(json.dumps(posts), status=200)
+    return Response(json.dumps(posts,default = myconverter), status=200)
 
 
 @app.route('/create/sticky/note', methods= ['POST'])
@@ -442,6 +442,9 @@ def create_emotion(form):
     emotion['user_name'] = form['user_name']
     emotion['type'] = form['type']
     return emotion
+def myconverter(o):
+    if isinstance(o, datetime.datetime):
+        return o.__str__()
 
 if __name__ == '__main__':
     app.run()
