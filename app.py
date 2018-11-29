@@ -221,9 +221,26 @@ def create_new_post():
     return posts
 
 
+@app.route('/get/groups', methods= ['GET'])
+def get_groups():
+    user_obj = find_user(request.headers)
+    if user_obj == 403:
+        return Response(dumps({'status': 'Error unauthorized access'}), status=403)
+    return group_controller.get_group(request)
+
+
+@app.route('/get/groups/user', methods= ['GET'])
+def get_user_groups():
+    user_obj = find_user(request.headers)
+    if user_obj == 403:
+        return Response(dumps({'status': 'Error unauthorized access'}), status=403)
+    return group_controller.get_user_group(request, user_obj)
+
+
 @app.route('/sub/topics', methods= ['GET'])
 def get_sub_topics():
     return course_controller.get_sub_topic(request)
+
 
 @app.route('/create/group', methods= ['POST'])
 def create_new_group():
@@ -232,6 +249,7 @@ def create_new_group():
         return Response(dumps({'status': 'Error unauthorized access'}), status=403)
     group = group_controller.create_group(request , user_obj)
     return group
+
 
 @app.route('/analytics/user-events', methods= ['GET'])
 def getUserEvents():

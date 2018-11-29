@@ -16,6 +16,7 @@ app = Flask(__name__)
 app.config["MONGO_URI"] = study_global.URI
 mongo = PyMongo(app)
 
+
 def create_group(request, user):
     Group = mongo.db.Group
     group_existing = Group.find_one({'code': request.json['code']})
@@ -27,6 +28,19 @@ def create_group(request, user):
     return Response(dumps(new_group), status=200)
 
 
+def get_group(request):
+    Group = mongo.db.Group
+    query = request.query_string.split("=")
+    groups = Group.find({"title" : {"$regex" : ".*"+query[1]+".*"}})
+    return Response(dumps(groups), status=200)
+
+
+def get_user_group(request, user):
+    Group = mongo.db.Group
+    groups = Group.find({"users": user['user_name']})
+    return Response(dumps(groups), status=200)
+
+
 def create_group_obj(request, user):
     obj= {}
     obj['group_creator'] = user['user_name']
@@ -34,4 +48,5 @@ def create_group_obj(request, user):
     obj['code'] = request.json['code']
     obj['created_time'] = datetime.datetime.now()
     return obj
+
 
