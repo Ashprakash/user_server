@@ -30,8 +30,8 @@ def create_group(request, user):
 def adduser_group(request, user):
     Group = mongo.db.Group
     group_existing = Group.find_one({'code': request.json['code']})
-    if(group_existing == None):
-        return Response(dumps({'status': 'No Group availale. You can create one'}), status=403)
+    # if(group_existing == None):
+    #     return Response(dumps({'status': 'No Group availale. You can create one'}), status=403)
     if(group_existing['users'].__contains__(user['user_name'])):
         return Response(dumps({'status': 'User already exists'}), status=403)
     group_existing['users'].append(user['user_name'])
