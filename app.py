@@ -35,6 +35,10 @@ def hello_world():
 def get_circlegraph():
     return graph_controller.get_circlegraph()
 
+@app.route('/tagcloud', methods=['GET'])
+def get_tagcloud():
+    return graph_controller.get_tagcloud()
+
 @app.route('/user', methods=['GET'])
 def get_users():
     user_cursor = mongo.db.User.find()
