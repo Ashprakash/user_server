@@ -125,13 +125,26 @@ def unpin_post(request, user):
 
 def get_posts(request, user):
     Post = mongo.db.Post
-    if(request.json['group'] != None):
-        notes =Post.find({"group": str(ObjectId(request.json['group']))})
-    else:
-        notes = Post.find({"group": {"$exists": False}})
+    notes = Post.find()
     response_final = []
+    # if 'group'  in notes:
+    #     notes =Post.find({"group": str(ObjectId(request.json['group']))})
+    # else:
+    #     notes = Post.find({"group": {"$exists": False}})
+    # response_final = []
+    group = 0
+    if len(request.data) != 0:
+        group = 1
     for post in notes:
         response = {}
+        if(group == 1):
+            if 'group' not in post:
+                continue
+            else:
+                response['group'] = post['group']
+        if (group == 0):
+            if 'group' in post:
+                continue
         response['id'] = str(ObjectId(post['_id']))
         response['upvotes'] = post['up_votes']
         response['downvotes'] = post['down_votes']
