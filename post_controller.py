@@ -144,7 +144,7 @@ def get_posts(request, user):
     for post in notes:
         response = {}
         if group == 1:
-            if 'group' in post and post['group'] == query[1]:
+            if 'group' in post and query[0].split('=')[1] == post['group']:
                 response['group'] = post['group']
             else:
                 continue
