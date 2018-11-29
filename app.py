@@ -10,6 +10,7 @@ import bcrypt
 import course_controller
 import post_controller
 import graph_controller
+import group_controller
 import study_global
 import sticky_note_controller
 from bson.objectid import ObjectId
@@ -224,6 +225,13 @@ def create_new_post():
 def get_sub_topics():
     return course_controller.get_sub_topic(request)
 
+@app.route('/create/group', methods= ['POST'])
+def create_new_group():
+    user_obj = find_user(request.headers)
+    if user_obj == 403:
+        return Response(dumps({'status': 'Error unauthorized access'}), status=403)
+    group = group_controller.create_group(request , user_obj)
+    return group
 
 @app.route('/analytics/user-events', methods= ['GET'])
 def getUserEvents():
