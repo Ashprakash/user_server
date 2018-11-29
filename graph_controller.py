@@ -14,6 +14,21 @@ app = Flask(__name__)
 app.config["MONGO_URI"] = study_global.URI
 mongo = PyMongo(app)
 
+def get_tagcloud():
+    dict_tag_count = {}
+    
+    results = mongo.db.Post.find()
+
+    for each_result in results:
+        list_tag_name = each_result['tags']
+        for tag_name in list_tag_name:
+            if tag_name not in dict_tag_count:
+                dict_tag_count[tag_name] = 0
+            dict_tag_count[tag_name] += 1
+
+    return Response(dumps(dict_tag_count), status=200)
+    
+
 def get_circlegraph():
     dict_user_course = {}
     
