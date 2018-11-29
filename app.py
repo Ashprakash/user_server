@@ -233,6 +233,15 @@ def create_new_group():
     group = group_controller.create_group(request , user_obj)
     return group
 
+@app.route('/add-user/group', methods= ['POST'])
+def add_user_to_group():
+    user_obj = find_user(request.headers)
+    if user_obj == 403:
+        return Response(dumps({'status': 'Error unauthorized access'}), status=403)
+    group = group_controller.adduser_group(request , user_obj)
+    return group
+
+
 @app.route('/analytics/user-events', methods= ['GET'])
 def getUserEvents():
     userLogs = mongo.db.UserLog
