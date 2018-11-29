@@ -41,7 +41,7 @@ def create_post_obj(request, user):
     obj['created_user'] = user
     obj['upvote_users'] = []
     obj['downvote_users'] = []
-    obj['created_time'] = datetime.datetime.now()
+    obj['created_time'] = str(datetime.datetime.now())
     return obj
 
 def create_comment(request, user):
@@ -55,7 +55,7 @@ def create_comment(request, user):
         comments['id'] = note['comments'][len(note['comments'])-1]['id'] + 1
     comments['comment'] = request.json['comment']
     comments['user'] = user['user_name']
-    comments['created_time'] = datetime.datetime.now()
+    comments['created_time'] = str(datetime.datetime.now())
     comment_array.append(comments)
     note['comments'] = comment_array
     Post = mongo.db.Post
@@ -135,7 +135,7 @@ def get_posts(request, user):
     group = 0
     query = []
     if len(request.query_string) != 0:
-        query = request.query_string.split('=')
+        query = request.query_string.decode().split('=')
         group = 1
 
     for post in notes:
@@ -152,6 +152,8 @@ def get_posts(request, user):
         response['id'] = str(ObjectId(post['_id']))
         response['upvotes'] = post['up_votes']
         response['downvotes'] = post['down_votes']
+        if 'comments' in post:
+            response['comments'] = post['comments']
         if 'pinned' in post:
             response['pinned'] = post['pinned']
             response['pinned_users'] = post['pinned_users']
