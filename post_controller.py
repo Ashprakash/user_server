@@ -29,6 +29,7 @@ def create_post_obj(request, user):
     obj['tags'] = request.json['tags']
     obj['content'] = request.json['content']
     obj['code'] = request.json['code']
+    obj['group'] = request.json['group-id']
     sub = request.json['subTopic']
     subtopic = SubTopic.find_one({"name": sub, "code": obj['code']})
     obj['subtopic'] = subtopic
@@ -105,7 +106,10 @@ def unpin_post(request, user):
 
 def get_posts(request, user):
     Post = mongo.db.Post
-    notes = Post.find()
+    if(request['group'] != None):
+        notes =Post.find_one({"group": request['group']})
+    else:
+        notes = Post.find({"group": {"$exists": False}})
     response_final = []
     for post in notes:
         response = {}

@@ -182,6 +182,14 @@ def get_posts():
     posts = post_controller.get_posts(request, user_obj)
     return Response(json.dumps(posts), status=200)
 
+@app.route('/groups/get-posts', methods=['GET'])
+def get_posts():
+    user_obj = find_user(request.headers)
+    if user_obj == 403:
+        return Response(dumps({'status': 'Error unauthorized access'}), status=403)
+    posts = post_controller.get_posts(request, user_obj)
+    return Response(json.dumps(posts), status=200)
+
 
 @app.route('/create/sticky/note', methods= ['POST'])
 def create_sticky_note():
@@ -213,6 +221,14 @@ def get_sticky_notes():
 
 
 @app.route('/create/post', methods= ['POST'])
+def create_new_post():
+    user_obj = find_user(request.headers)
+    if user_obj == 403:
+        return Response(dumps({'status': 'Error unauthorized access'}), status=403)
+    posts = post_controller.add_post(request, user_obj)
+    return posts
+
+@app.route('/create/group/post', methods= ['POST'])
 def create_new_post():
     user_obj = find_user(request.headers)
     if user_obj == 403:
