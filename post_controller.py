@@ -133,11 +133,14 @@ def get_posts(request, user):
     #     notes = Post.find({"group": {"$exists": False}})
     # response_final = []
     group = 0
+    user_flag = 0
     query = []
     if len(request.query_string) != 0:
-        query = request.query_string.decode().split('=')
-        group = 1
-
+        query = request.query_string.decode().split('?')[0].split('&')
+        if query[0].split('=')[1] !=None and len(query[0].split('=')[1])>0:
+            group = 1
+        if query[1].split('=')[1] == '1':
+            user_flag = 1
     for post in notes:
         response = {}
         if group == 1:
@@ -149,6 +152,11 @@ def get_posts(request, user):
         if group == 0:
             if 'group' in post:
                 continue
+            else:
+                if(user_flag==1 and user['user_name']!=post['created_user']['user_name']):
+                    continue
+                elif (user_flag == 0 and user['user_name'] == post['created_user']['user_name']):
+                    continue
         response['id'] = str(ObjectId(post['_id']))
         response['upvotes'] = post['up_votes']
         response['downvotes'] = post['down_votes']
