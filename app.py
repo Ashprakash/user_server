@@ -236,6 +236,14 @@ def create_new_post_group():
     posts = post_controller.add_post(request, user_obj)
     return posts
 
+@app.route('/create/comments/post', methods= ['POST'])
+def create_new_comment():
+    user_obj = find_user(request.headers)
+    if user_obj == 403:
+        return Response(dumps({'status': 'Error unauthorized access'}), status=403)
+    posts = post_controller.create_comment(request, user_obj)
+    return "Successfully added the comment"
+
 
 @app.route('/get/groups', methods= ['GET'])
 def get_groups():

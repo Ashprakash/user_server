@@ -44,6 +44,24 @@ def create_post_obj(request, user):
     obj['created_time'] = datetime.datetime.now()
     return obj
 
+def create_comment(request, user):
+    note = find_post(request.json['_id'])
+    comments = {}
+    if 'comments' not in note:
+        comment_array = []
+        comments['id'] = 1
+    else:
+        comment_array = note['comments']
+        comments['id'] = note['comments'][len(note['comments'])-1]['id'] + 1
+    comments['comment'] = request.json['comment']
+    comments['user'] = user['user_name']
+    comments['created_time'] = datetime.datetime.now()
+    comment_array.append(comments)
+    note['comments'] = comment_array
+    Post = mongo.db.Post
+    Post.update_one({'_id': note['_id']}, {"$set": note}, upsert=False)
+    return note
+
 def upvote_post(request, user):
     note = find_post(request.json['_id'])
     note['up_votes'] = note['up_votes'] + 1
