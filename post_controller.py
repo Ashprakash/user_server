@@ -143,6 +143,18 @@ def get_posts(request, user):
             user_flag = 1
     for post in notes:
         response = {}
+
+
+        if len(post['upvote_users'])>0 and post['upvote_users'].__contains__(user['user_name']):
+            response['isUpvoted'] = True
+        else:
+            response['isUpvoted'] = False
+
+        if len(post['downvote_users'])>0 and post['downvote_users'].__contains__(user['user_name']):
+            response['isDownvoted'] = True
+        else:
+            response['isDownvoted'] = False
+
         if group == 1:
             if 'group' in post and query[0].split('=')[1] == post['group']:
                 response['group'] = post['group']
@@ -182,6 +194,7 @@ def get_posts(request, user):
         response['created_user'] = post['created_user']['user_name']
         response['user_upvoted'] = 0
         response['user_downvoted'] = 0
+
         upvoted_users = post['upvote_users']
         if upvoted_users != None:
             for userUpvoted in upvoted_users:
