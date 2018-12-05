@@ -31,13 +31,16 @@ mongo = PyMongo(app)
 def hello_world():
     return 'Hello World!'
 
+
 @app.route('/circlegraph', methods=['GET'])
 def get_circlegraph():
     return graph_controller.get_circlegraph()
 
+
 @app.route('/tagcloud', methods=['GET'])
 def get_tagcloud():
     return graph_controller.get_tagcloud()
+
 
 @app.route('/user', methods=['GET'])
 def get_users():
@@ -161,6 +164,7 @@ def downvote_post():
     posts = post_controller.downvote_post(request, user_obj)
     return "Successfully updated"
 
+
 @app.route('/pin-post', methods=['POST'])
 def pin_post():
     user_obj = find_user(request.headers)
@@ -168,6 +172,7 @@ def pin_post():
         return Response(dumps({'status': 'Error unauthorized access'}), status=403)
     posts = post_controller.pin_post(request, user_obj)
     return "Successfully updated"
+
 
 @app.route('/unpin-post', methods=['POST'])
 def unpin_post():
@@ -393,7 +398,9 @@ def create_user_dto(each, loggedin):
     user['user_name'] = each['user_name']
     user['first_name'] = each['first_name']
     user['last_name'] = each['last_name']
-    user['email'] = each['email']
+    user['email'] = each['email'],
+    if 'tags' in each:
+        user['tags'] = each['tags']
     if loggedin:
         user['logged_in_time'] = str(loggedin['logged_in_time'])
         user['online'] = loggedin['online']
@@ -433,6 +440,8 @@ def create_emotion(form):
     emotion['user_name'] = form['user_name']
     emotion['type'] = form['type']
     return emotion
+
+
 def myconverter(o):
     if isinstance(o, datetime.datetime):
         return o.__str__()
