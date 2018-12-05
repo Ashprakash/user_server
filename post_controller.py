@@ -103,15 +103,42 @@ def downvote_post(request, user):
     Post.update_one({'_id': note['_id']}, {"$set": note}, upsert=False)
     return note
 
+
 def pin_post(request, user):
     note = find_post(request.json['_id'])
-    note['pinned'] = note['pinned'] + 1
-    if (len(note['pinned_users']) == 0):
+    if 'pinned' in note:
+        note['pinned'] = note['pinned'] + 1
+    else:
+        note['pinned'] = 1
+    if 'pinned_users' not in note or (len(note['pinned_users']) == 0):
         userList = []
         userList.append(user['user_name'])
         note['pinned_users'] = userList
     else:
         note['pinned_users'] = note['pinned_users'].append(user['user_name'])
+    user = mongo.db.User.find_one({'user_name': user['user_name']})
+    new_tags = []
+    for tag in note['tags']:
+        found = False
+        for user_tag in user['tags']:
+            if tag == user_tag['name']:
+                user_tag['completed'] = user_tag['completed'] + 1
+                found = True
+                break
+        if not found:
+            obj = {}
+            obj['name'] = tag
+            obj['expertise'] = 1
+            obj['target'] = 60
+            obj['completed'] = 1
+            new_tags.append(obj)
+
+    if len(new_tags) > 0 and 'tags' in user:
+        user['tags'].extend(new_tags)
+    elif 'tags' not in user:
+        user['tags'] = new_tags
+
+    mongo.db.User.update_one({'user_name': user['user_name']}, {"$set": user}, upsert=False)
     Post = mongo.db.Post
     Post.update_one({'_id': note['_id']}, {"$set": note}, upsert=False)
     return note
@@ -160,6 +187,12 @@ def get_posts(request, user):
             response['isDownvoted'] = True
         else:
             response['isDownvoted'] = False
+
+        if 'pinned_users' in post and len(post['pinned_users']) > 0 and post['pinned_users'].__contains__(
+                user['user_name']):
+            response['isRead'] = True
+        else:
+            response['isRead'] = False
 
         if group == 1:
             if 'group' in post and query[0].split('=')[1] == post['group']:
