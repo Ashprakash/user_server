@@ -145,12 +145,12 @@ def get_posts(request, user):
         response = {}
 
 
-        if len(post['upvote_users'])>0 and post['upvote_users'].__contains__(user['user_name']):
+        if 'upvote_users' in post and len(post['upvote_users'])>0 and post['upvote_users'].__contains__(user['user_name']):
             response['isUpvoted'] = True
         else:
             response['isUpvoted'] = False
 
-        if len(post['downvote_users'])>0 and post['downvote_users'].__contains__(user['user_name']):
+        if 'downvote_users' in post and len(post['downvote_users'])>0 and post['downvote_users'].__contains__(user['user_name']):
             response['isDownvoted'] = True
         else:
             response['isDownvoted'] = False
